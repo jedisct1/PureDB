@@ -2,7 +2,8 @@ ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = \
 	FORMAT_DESCR \
-	LICENSE
+	LICENSE \
+	README.markdown
 
 SUBDIRS = \
 	src
