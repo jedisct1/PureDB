@@ -1,0 +1,26 @@
+
+* Version 2.1
+ - The binary search could return -1 as a slot number when a hash key wasn't
+found. It has been fixed.
+ - A new regression test has been added.
+
+* Version 2.0
+ - Preliminary Windows port and lookup performance speedup, contributed by
+Philip Gladstone <philip@okena.com>
+ - License changed from GPL to BSD.
+ - Format description (FORMAT_DESCR) added.
+
+* Version 1.3
+ - Minor compilation/strictness fixes. This release syncs with Pure-FTPd
+1.0.1 .
+
+* Version 1.2
+ - Portability improvements.
+ - Don't crash when puredbw_free() is called after a puredbw_open() failure.
+
+* Version 1.1
+ - Added regression tests.
+ - Fixed a pointer arithmetic error.
+
+* Version 1.0
+ - Initial release.

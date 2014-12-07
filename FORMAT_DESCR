@@ -1,0 +1,107 @@
+
+PureDB binary files have the following structure :
+
+<pdb header><hash table 0 offset>...<hash table 255 offset><filler>
+ ----------  ---------------------------------------------  ------
+  4 bytes                    256 * 4 bytes                  4 bytes
+
+<hash table 0>...<hash table 255>
+ ------------
+slots * 8 bytes
+
+<key len 0><key 0><data len 0><data 0>                   <--- record #0
+...
+<key len n><key n><data len n><data n>                   <--- record #n
+
+        ------------------------ pdb header ------------------------
+
+A 4-bytes magic number. PureDB v1.0 files have "PDB1" has an header. PureDB
+v2.0 have "PDB2".
+
+    ------------------------ hash tables offsets ------------------------
+
+All keys are hashed (see below for the hash function) . Hash values are
+stored in 256 hash tables, depending on the low byte of the computed hash
+value for a given key.
+
+<hash table n offset> is the offset of that hash table, relative to the
+beginning of the puredb file (first byte = 0) .
+
+All offsets are 4 bytes values, in big-endian order.
+
+          ------------------------ filler ------------------------
+          
+<filler> is a 4 bytes value : the offset of the byte located just after the
+last hash table (big endian) .
+
+        ------------------------ hash tables ------------------------
+        
+Hash tables have the following structure :
+
+<hash value 0><data offset 0>...<hash value n><data offset n>
+
+Those are two 4-bytes big endian values.
+
+All entries are sorted in incremental hash order.
+
+          ------------------------ records ------------------------
+
+Every record has always four fields :
+- A 4-bytes big endian value : the length of the record key.
+- A variable-length binary string : the key.
+- A 4-bytes big endian value : the length of the data.
+- The binary data itself.
+
+       ------------------------ hash function ------------------------
+
+Here's the hash function reference implementation (it's just the CDB one) :
+
+static puredb_u32_t puredb_hash(const char * const msg, size_t len)
+{
+    puredb_u32_t j = (puredb_u32_t) 5381U;
+    
+    while (len != 0) {
+        len--;
+        j += (j << 5);
+        j ^= ((unsigned char) msg[len]);        
+    }
+    j &= 0xffffffff;
+    
+    return j;
+}
+
+  ------------------------ how to locate a record ------------------------
+  
+Here are the requiered steps to locate a record according to a give key.
+
+1- Compute the hash value H of the key.
+
+2- Read the hash table offset (O) at the following location :
+  4 + (H & 0xff) * 4
+  
+3- Read the next hash table offset (O2). The number of slots in this hash
+table is (O2 - O) / 8.
+
+4- Read a 4 bytes big endian value at offset O. This is the hash value for a
+record.
+
+5- If this hash value matches the key hash, go to step 7.
+
+6- Add 8 to O (next slot of the hash table), and go back to step 3, until
+the readen hash value is greater than H. If this happens, the key is
+missing, as hash values are sorted in hash tables. The key is also missing
+when all slots have been scanned.
+
+7- Read a 4-bytes big endian offset at O + 4. You get the offset of a record
+matching the key hash. Let's call this offset D.
+
+8- Compare the key length (a 4-bytes value read at offset D) with the
+expected key length. If it differs, go to step 6 in order to scan the next
+slot matching the hash value.
+
+9- Compare the key (from D+4 to D+4+key length) with the expected key. If they
+matches, you know where the data is, and how long it is. If the keys differ,
+go to step 6 in order to scan the next slot matching the hash value.
+
+As hash values are sorted, interpolation can also be performed to speed up
+lookups. This is what the puredb_read library does by default.

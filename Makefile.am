@@ -1,0 +1,8 @@
+SUBDIRS = \
+	src
+
+EXTRA_DIST = \
+	FORMAT_DESCR \
+	LICENSE
+    
+ACLOCAL_AMFLAGS = -I m4
