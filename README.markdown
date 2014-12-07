@@ -69,13 +69,13 @@ API for creating databases
 Creating a new database is usually a 4-step operation:
 
 1) Create the database files and initialize the internal structures with
-puredbw_open() .
+`puredbw_open()`.
 
-2) Feed key/data pairs with puredbw_add() or puredbw_add_s() .
+2) Feed key/data pairs with `puredbw_add()` or `puredbw_add_s()`.
 
-3) Complete and close the database files with puredbw_close() .
+3) Complete and close the database files with `puredbw_close()`.
 
-4) Free the internal structures with puredbw_free() .
+4) Free the internal structures with `puredbw_free()`.
 
 Here are the functions:
 
@@ -86,7 +86,7 @@ int puredbw_open(PureDBW * const dbw,
                  const char * const file_final);
 ```
 
-This function takes a point to an already allocated PureDBW structure, and
+This function takes a point to an already allocated `PureDBW` structure, and
 three file names. file_index and file_data are temporary files, needed to
 create the database. They will be automatically deleted, and the final
 database will atomically be stored in `file_final`.
@@ -100,7 +100,7 @@ int puredbw_add(PureDBW * const dbw,
 ```
 
 This function stores a new key/data pair in the database. key is a pointer
-to the key, that is `key_len` long. Same thing for content and content_len.
+to the key, that is `key_len` long. Same thing for `content` and `content_len`.
 These buffers can handle binary data, and can have any size up to 4 Gb.
 
 Return value: `0` if everything is ok, a negative value if something went wrong.
