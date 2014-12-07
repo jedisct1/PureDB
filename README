@@ -14,11 +14,11 @@ key/data pairs of arbitrary sizes. Lookups are very fast (normally only one
 disk access to match a hash value), overhead is low (a database is 1028
 bytes plus only 16 extra bytes per record), multiple concurrent read access
 are supported, and databases can be up to 4 Gb long, and they are portable
-accross architectures. 
+accross architectures.
 
 
         ------------------------ COMPILATION ------------------------
-        
+
 
 Compiling PureDB is a simple matter of :
 
@@ -118,7 +118,7 @@ int puredbw_close(PureDBW * const dbw);
 This function performs a quick sort of the hashed values, writes them to the
 disk, merges index and data files, rename the result to the final file name
 and delete the old files. You must call this after having inserted all
-values in the database. 
+values in the database.
 
 Return value: 0 if everything is ok, a negative value if something went wrong.
 
@@ -142,24 +142,19 @@ pairs into it.
 int main(void)
 {
     PureDBW dbw;
-    
+
     if (puredbw_open(&dbw, "puredb.index", "puredb.data", "puredb.pdb") != 0) {
         perror("Can't create the database");
-        goto end;
-    }
-    if (puredbw_add_s(&dbw, "key", "content") != 0 ||
-        puredbw_add_s(&dbw, "key2", "content2") != 0 ||
-        puredbw_add_s(&dbw, "key42", "content42") != 0) {
+    } else if (puredbw_add_s(&dbw, "key", "content") != 0 ||
+               puredbw_add_s(&dbw, "key2", "content2") != 0 ||
+               puredbw_add_s(&dbw, "key42", "content42") != 0) {
         perror("Error while inserting key/data pairs");
-        goto end;
     }
     if (puredbw_close(&dbw) != 0) {
         perror("Error while closing the database");
     }
-    
-    end:
     puredbw_free(&dbw);
-    
+
     return 0;
 }
 
@@ -197,7 +192,7 @@ Return value: 0 if everything is ok, a negative value if something went wrong.
 
 
 int puredb_find(PureDB * const db, const char * const tofind,
-                const size_t tofind_len, off_t * const retpos, 
+                const size_t tofind_len, off_t * const retpos,
                 size_t * const retlen);
 
 This function looks the database for a key matching tofind, whoose length is
@@ -280,24 +275,18 @@ int main(void)
     off_t retpos;
     size_t retlen;
     char *data;
-    
+
     if (puredb_open(&db, "puredb.pdb") != 0) {
         perror("Can't open the database");
-        goto end;
-    }
-    if (puredb_find_s(&db, "key42", &retpos, &retlen) != 0) {
+    } else if (puredb_find_s(&db, "key42", &retpos, &retlen) != 0) {
         fprintf(stderr, "The key wasn't found\n");
-        goto end;
-    }
-    if ((data = puredb_read(&db, retpos, retlen)) != NULL) {
+    } else if ((data = puredb_read(&db, retpos, retlen)) != NULL) {
         printf("The maching data is : [%s]\n", data);
         puredb_read_free(data);
     }
-    end:
     if (puredb_close(&db) != 0) {
         perror("The database couldn't be properly closed");
     }
-    
     return 0;
 }
 
@@ -311,10 +300,10 @@ If you have question, suggestions or patches, feel free to get in touch with
 me. Newbies and silly ideas are welcome.
 
 
-Thank you, 
+Thank you,
 
                         -Frank DENIS <j at pureftpd dot org>.
-                                 
+
 
 
 
