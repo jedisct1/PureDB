@@ -161,7 +161,7 @@ int main(void)
 
     return 0;
 }
-```c
+```
 
 API for reading databases
 -------------------------
