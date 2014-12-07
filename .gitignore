@@ -1,29 +1,42 @@
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
 *.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
+*.app
 *.dll
+*.dylib
+*.elf
+*.exe
+*.gch
+*.hex
+*.i*86
+*.ko
+*.la
+*.lib
+*.lo
+*.log
+*.o
+*.obj
+*.out
+*.pch
+*.scan
 *.so
 *.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
+*.status
+*.tar.gz
+*.tar.bz2
 *.x86_64
-*.hex
+*~
+.deps
+.libs
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache
+build-aux
+config.h
+config.h.in
+configure
+example_read
+example_write
+libtool
+m4
+regression
+stamp-h1
