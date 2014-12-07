@@ -1,5 +1,5 @@
 
-/* (C)opyleft 2001-2002 Frank DENIS <j@pureftpd.org> */
+/* (C)opyleft 2001-2014 Frank DENIS */
 
 #include <stdio.h>
 #include <stdlib.h>
