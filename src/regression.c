@@ -1,5 +1,5 @@
 
-/* (C)opyleft 2001-2014 Frank DENIS */
+/* (C)opyleft 2001-2022 Frank DENIS */
 
 #include <config.h>
 #include "puredb_p.h"

@@ -1,5 +1,5 @@
 
-/* (C)opyleft 2001-2014 Frank DENIS */
+/* (C)opyleft 2001-2022 Frank DENIS */
 
 #ifndef __PUREDB_READ_H__
 #define __PUREDB_READ_H__ 1
