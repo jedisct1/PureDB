@@ -1,5 +1,5 @@
 
-/* (C)opyleft 2001-2022 Frank DENIS */
+/* (C)opyleft 2001-2022 Frank DENIS <j at pureftpd dot org> */
 
 #ifndef __PUREDB_WRITE_H__
 #define __PUREDB_WRITE_H__ 1
@@ -10,7 +10,7 @@
 #define PUREDBW_LIB_VERSION 1
 
 #ifndef PUREDB_U32_T
-# if SHORT_MAX >= 2147483647
+# if SHRT_MAX >= 2147483647
 typedef unsigned short puredb_u32_t;
 # elif INT_MAX >= 2147483647
 typedef unsigned int puredb_u32_t;

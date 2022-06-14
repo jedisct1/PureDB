@@ -1,10 +1,27 @@
 
-/* (C)opyleft 2001-2022 Frank DENIS */
+/* (C)opyleft 2001-2022 Frank DENIS <j at pureftpd dot org> */
 
 #include <config.h>
 
 #include "puredb_p.h"
 #include "puredb_write.h"
+
+#ifndef HAVE_STRDUP
+static char *strdup(const char *str)
+{
+    char *newstr;
+    size_t str_len_1;
+
+    if (str == NULL ||
+        (str_len_1 = strlen(str) + (size_t) 1U) <= (size_t) 0U ||
+        (newstr = malloc(str_len_1)) == NULL) {
+        return NULL;
+    }
+    memcpy(newstr, str, str_len_1);
+
+    return newstr;
+}
+#endif
 
 static puredb_u32_t puredbw_hash(const char * const msg, size_t len)
 {
@@ -85,8 +102,8 @@ int puredbw_add(PureDBW * const dbw,
         hash0->hash1_list = newpnt;
     }
     dbw->offset_first_data += sizeof(puredb_u32_t) + sizeof(puredb_u32_t);
-    hash1 = (Hash1 *) ((unsigned char *) hash0->hash1_list +
-                       hash0->hash1_list_size - sizeof(Hash1));
+    hash1 = (Hash1 *) (void *) ((unsigned char *) hash0->hash1_list +
+                                hash0->hash1_list_size - sizeof(Hash1));
     hash1->hash = hash;
     hash1->offset_data = dbw->data_offset_counter;
     dbw->data_offset_counter += sizeof(puredb_u32_t) + sizeof(puredb_u32_t) +
@@ -125,8 +142,8 @@ int puredbw_add_s(PureDBW * const dbw,
 
 static int hash1_cmp_hook(const void * const a, const void * const b)
 {
-    register puredb_u32_t ha = ((const Hash1 *) a)->hash;
-    register puredb_u32_t hb = ((const Hash1 *) b)->hash;
+    puredb_u32_t ha = ((const Hash1 *) a)->hash;
+    puredb_u32_t hb = ((const Hash1 *) b)->hash;
 
     if (ha < hb) {
         return -1;
@@ -145,9 +162,9 @@ static int hash1_cmp_hook(const void * const a, const void * const b)
 
 static int writekeys(PureDBW * const dbw)
 {
-    register int hash_cnt = (int)
+    int hash_cnt = (int)
         (sizeof dbw->hash_table0 / sizeof dbw->hash_table0[0]);
-    register const Hash0 *hash0 = dbw->hash_table0;
+    const Hash0 *hash0 = dbw->hash_table0;
 
     puredb_u32_t offset = (puredb_u32_t)
         ((1U + sizeof dbw->hash_table0 / sizeof dbw->hash_table0[0]) *
@@ -183,8 +200,8 @@ static int writekeys(PureDBW * const dbw)
     hash_cnt = (int) (sizeof dbw->hash_table0 / sizeof dbw->hash_table0[0]);
     hash0 = dbw->hash_table0;
     do {
-        register Hash1 *hash1 = hash0->hash1_list;
-        register size_t list_size = hash0->hash1_list_size;
+        Hash1 *hash1 = hash0->hash1_list;
+        size_t list_size = hash0->hash1_list_size;
 
         if (hash1 == NULL) {
             const puredb_u32_t null_ =
@@ -229,14 +246,12 @@ static int writekeys(PureDBW * const dbw)
 
 static int freestructs(PureDBW * const dbw)
 {
-    register Hash0 *hash0 = dbw->hash_table0;
+    Hash0 *hash0 = dbw->hash_table0;
     int hash0_cnt = (int) (sizeof dbw->hash_table0 / sizeof dbw->hash_table0[0]);
 
     do {
-        if (hash0->hash1_list != NULL) {
-            free(hash0->hash1_list);
-            hash0->hash1_list = NULL;
-        }
+        free(hash0->hash1_list);
+        hash0->hash1_list = NULL;
         hash0++;
         hash0_cnt--;
     } while (hash0_cnt > 0);
@@ -246,13 +261,13 @@ static int freestructs(PureDBW * const dbw)
 
 static int mergefiles(PureDBW * const dbw)
 {
-    size_t readen;
+    size_t readnb;
     char buf[4096];
 
     rewind(dbw->fpdata);
-    while ((readen = fread(buf, (size_t) 1U, sizeof buf, dbw->fpdata)) >
+    while ((readnb = fread(buf, (size_t) 1U, sizeof buf, dbw->fpdata)) >
            (size_t) 0U) {
-        if (fwrite(buf, (size_t) 1U, readen, dbw->fpindex) != readen) {
+        if (fwrite(buf, (size_t) 1U, readnb, dbw->fpindex) != readnb) {
             return -1;
         }
     }
@@ -293,18 +308,12 @@ static void freeall(PureDBW * const dbw)
         fclose(dbw->fpdata);
         dbw->fpdata = NULL;
     }
-    if (dbw->file_index != NULL) {
-        free(dbw->file_index);
-        dbw->file_index = NULL;
-    }
-    if (dbw->file_data != NULL) {
-        free(dbw->file_data);
-        dbw->file_data = NULL;
-    }
-    if (dbw->file_final != NULL) {
-        free(dbw->file_final);
-        dbw->file_final = NULL;
-    }
+    free(dbw->file_index);
+    dbw->file_index = NULL;
+    free(dbw->file_data);
+    dbw->file_data = NULL;
+    free(dbw->file_final);
+    dbw->file_final = NULL;
 }
 
 void puredbw_free(PureDBW * const dbw)

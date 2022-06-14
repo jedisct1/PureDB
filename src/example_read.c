@@ -1,5 +1,5 @@
 
-/* (C)opyleft 2001-2022 Frank DENIS */
+/* (C)opyleft 2001-2022 Frank DENIS <j at pureftpd dot org> */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +22,7 @@ int main(void)
         goto end;
     }
     if ((data = puredb_read(&db, retpos, retlen)) != NULL) {
-        printf("The maching data is : [%s]\n", data);
+        printf("Matching data: [%s]\n", data);
         puredb_read_free(data);
     }
     end:

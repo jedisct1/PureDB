@@ -1,5 +1,5 @@
 
-/* (C)opyleft 2001-2022 Frank DENIS */
+/* (C)opyleft 2001-2022 Frank DENIS <j at pureftpd dot org> */
 
 #ifndef __PUREDB_P_H__
 #define __PUREDB_P_H__ 1
@@ -86,11 +86,6 @@
 
 #ifndef errno
 extern int errno;
-#endif
-
-#ifndef HAVE_STRDUP
-# define strdup(X) do { char *x; if ((x = malloc(strlen(X) + 1)) != NULL) \
-        strcpy(x, (X)); } while(0)
 #endif
 
 #endif

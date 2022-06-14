@@ -1,5 +1,5 @@
 
-/* (C)opyleft 2001-2022 Frank DENIS */
+/* (C)opyleft 2001-2022 Frank DENIS <j at pureftpd dot org> */
 
 #include <config.h>
 
@@ -23,20 +23,20 @@ static puredb_u32_t puredb_hash(const char * const msg, size_t len)
 static ssize_t safe_read(const int fd, void * const buf_, size_t maxlen)
 {
     unsigned char *buf = (unsigned char *) buf_;
-    ssize_t readen;
+    ssize_t readnb;
 
     do {
-        while ((readen = read(fd, buf, maxlen)) < (ssize_t) 0 &&
+        while ((readnb = read(fd, buf, maxlen)) < (ssize_t) 0 &&
                errno == EINTR);
-        if (readen < (ssize_t) 0 || readen > (ssize_t) maxlen) {
-            return readen;
+        if (readnb < (ssize_t) 0 || readnb > (ssize_t) maxlen) {
+            return readnb;
         }
-        if (readen == (ssize_t) 0) {
+        if (readnb == (ssize_t) 0) {
             ret:
             return (ssize_t) (buf - (unsigned char *) buf_);
         }
-        maxlen -= readen;
-        buf += readen;
+        maxlen -= readnb;
+        buf += readnb;
     } while (maxlen > (ssize_t) 0);
     goto ret;
 }
@@ -50,6 +50,9 @@ static int read_be_long(const PureDB * const db,
 
 #ifdef USE_MAPPED_IO
     if (db->map != NULL) {
+        if (db->size < 4 || offset > db->size - 4) {
+            return -1;
+        }
         mapoffset = db->map + offset;
     } else
 #endif
@@ -105,10 +108,10 @@ int puredb_open(PureDB * const db, const char *dbfile)
     if ((db->fd = open(dbfile, O_RDONLY | O_BINARY)) == -1) {
         return -1;
     }
-    if (fstat(db->fd, &st) < 0 ||
-        (db->size = (puredb_u32_t) st.st_size) > (size_t) 0xffffffff ||
-        db->size < ((size_t) (256U + 1U) * sizeof(puredb_u32_t) +
-                   sizeof PUREDB_VERSION - (size_t) 1U)) {
+    if (fstat(db->fd, &st) < 0 || st.st_size > (off_t) 0xffffffff ||
+        (db->size = (puredb_u32_t) st.st_size) <
+        ((size_t) (256U + 1U) * sizeof(puredb_u32_t) +
+            sizeof PUREDB_VERSION - (size_t) 1U)) {
         close(db->fd);
 
         return -2;
