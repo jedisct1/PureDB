@@ -263,6 +263,9 @@ static int mergefiles(PureDBW * const dbw)
     fflush(dbw->fpindex);
 #ifdef HAVE_FILENO
     fsync(fileno(dbw->fpindex));
+# ifdef F_FULLFSYNC
+    ioctl(fileno(dbw->fpindex), F_FULLFSYNC, 0);
+# endif
 #endif
     if (fclose(dbw->fpindex) != 0) {
         return -1;
