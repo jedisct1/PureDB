@@ -8,7 +8,7 @@
 int main(void)
 {
     PureDBW dbw;
-    
+
     if (puredbw_open(&dbw, "puredb.index", "puredb.data", "puredb.pdb") != 0) {
         perror("Can't create the database");
         goto end;
@@ -22,9 +22,9 @@ int main(void)
     if (puredbw_close(&dbw) != 0) {
         perror("Error while closing the database");
     }
-    
+
     end:
     puredbw_free(&dbw);
-    
+
     return 0;
 }

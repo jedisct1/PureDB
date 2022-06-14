@@ -7,12 +7,12 @@
 
 int main(void)
 {
-    char *data;    
+    char *data;
     PureDB db;
     off_t retpos;
     size_t retlen;
     int err;
-    
+
     if (puredb_open(&db, "puredb.pdb") != 0) {
         perror("Can't open the database");
         goto end;
@@ -29,6 +29,6 @@ int main(void)
     if (puredb_close(&db) != 0) {
         perror("The database couldn't be properly closed");
     }
-    
+
     return 0;
 }
