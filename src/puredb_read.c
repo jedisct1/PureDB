@@ -1,5 +1,5 @@
 
-/* (C)opyleft 2001-2022 Frank DENIS <j at pureftpd dot org> */
+/* (C)opyleft 2001-2026 Frank DENIS <j at pureftpd dot org> */
 
 #include <config.h>
 
@@ -80,6 +80,9 @@ static int read_memcmp(const PureDB * const db, const puredb_u32_t offset,
 
 #ifdef USE_MAPPED_IO
     if (db->map != NULL) {
+        if (offset > db->size || len > db->size - offset) {
+            return -2;
+        }
         return memcmp(db->map + offset, str, (size_t) len) != 0;
     }
 #endif
@@ -258,6 +261,10 @@ int puredb_find(PureDB * const db, const char * const tofind,
             if (key_size != (puredb_u32_t) tofind_len) {
                 goto trynext;
             }
+            if (data > db->size - sizeof(puredb_u32_t) ||
+                tofind_len > (size_t) (db->size - data - sizeof(puredb_u32_t))) {
+                return -2;
+            }
             if (read_memcmp(db, data + sizeof(puredb_u32_t),
                             (const unsigned char *) tofind, tofind_len) != 0) {
                 goto trynext;
@@ -267,6 +274,9 @@ int puredb_find(PureDB * const db, const char * const tofind,
                 return -3;
             }
             data += sizeof(puredb_u32_t);
+            if (data_size > db->size - data) {
+                return -2;
+            }
             *retpos = (off_t) data;
             *retlen = (size_t) data_size;
 
@@ -293,6 +303,10 @@ void *puredb_read(PureDB * const db, const off_t offset, const size_t len)
 {
     void *buf;
 
+    if (offset < (off_t) 0 || (size_t) offset > db->size ||
+        len > db->size - (size_t) offset) {
+        return NULL;
+    }
     if ((buf = malloc(len + (size_t) 1U)) == NULL) {
         return NULL;
     }
